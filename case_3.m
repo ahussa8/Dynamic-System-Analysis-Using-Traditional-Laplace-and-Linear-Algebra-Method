@@ -1,0 +1,51 @@
+m = 1;
+k = 4;
+F0 = 6;
+omega = 1;
+omega_n = sqrt(k/m);
+t = linspace(0, 20, 1000);
+x0 = 0;
+v0 = 0;
+zeta_undamped = 0;
+A_undamped = F0 / (m * (omega_n^2 - omega^2));
+B_undamped = 0;
+x_undamped = A_undamped * (-cos(omega_n * t) + cos(omega * t)) + ...
+    x0 * cos(omega_n * t) + (v0 / omega_n) * sin(omega_n * t);
+zeta_underdamped = 0.3;
+omega_d_underdamped = omega_n * sqrt(1 - zeta_underdamped^2);
+A_underdamped = F0 * (omega_n^2 - omega^2) / (m * ((omega_n^2 - omega^2)^2 + (2 * zeta_underdamped * omega_n * omega)^2));
+B_underdamped = (2 * zeta_underdamped * omega_n * omega * F0) / (m * ((omega_n^2 - omega^2)^2 + (2 * zeta_underdamped * omega_n * omega)^2));
+C2_underdamped = ((-zeta_underdamped * omega_n * A_underdamped) - (omega * B_underdamped)) / omega_d_underdamped;
+x_underdamped = exp(-zeta_underdamped * omega_n * t) .* ...
+    (-A_underdamped * cos(omega_d_underdamped * t) + C2_underdamped * sin(omega_d_underdamped * t)) + ...
+    A_underdamped * cos(omega * t) + B_underdamped * sin(omega * t);
+zeta_overdamped = 1.2;
+c = 2 * zeta_overdamped * omega_n * m;
+r1 = -zeta_overdamped * omega_n + omega_n * sqrt(zeta_overdamped^2 - 1);
+r2 = -zeta_overdamped * omega_n - omega_n * sqrt(zeta_overdamped^2 - 1);
+A_overdamped = F0 * (omega_n^2 - omega^2) / (m * ((omega_n^2 - omega^2)^2 + (2 * zeta_overdamped * omega_n * omega)^2));
+B_overdamped = (2 * zeta_overdamped * omega_n * omega * F0) / (m * ((omega_n^2 - omega^2)^2 + (2 * zeta_overdamped * omega_n * omega)^2));
+C1_overdamped = (v0 - r2 * (x0 - A_overdamped)) / (r1 - r2);
+C2_overdamped = (x0 - A_overdamped) - C1_overdamped;
+x_overdamped = C1_overdamped * exp(r1 * t) + C2_overdamped * exp(r2 * t) + ...
+    A_overdamped * cos(omega * t) + B_overdamped * sin(omega * t);
+figure;
+subplot(3, 1, 1);
+plot(t, x_undamped, '--k', 'LineWidth', 1.5, 'Marker', 'o', 'MarkerIndices', 1:100:length(t), 'MarkerSize', 4);
+title('Undamped Case: \zeta = 0', 'FontSize', 14, 'FontName', 'Arial');
+xlabel('Time(s)', 'FontSize', 12);
+ylabel('Displacement(m)', 'FontSize', 12);
+grid on;
+subplot(3, 1, 2);
+plot(t, x_underdamped, '-.m', 'LineWidth', 1.5, 'Marker', 's', 'MarkerIndices', 1:80:length(t), 'MarkerSize', 4);
+title('Underdamped Case: \zeta = 0.3', 'FontSize', 14, 'FontName', 'Arial');
+xlabel('Time(s)', 'FontSize', 12);
+ylabel('Displacement(m)', 'FontSize', 12);
+grid on;
+subplot(3, 1, 3);
+plot(t, x_overdamped, ':c', 'LineWidth', 1.5, 'Marker', '^', 'MarkerIndices', 1:150:length(t), 'MarkerSize', 5);
+title('Overdamped Case: \zeta = 1.2', 'FontSize', 14, 'FontName', 'Arial');
+xlabel('Time(s)', 'FontSize', 12);
+ylabel('Displacement(m)', 'FontSize', 12);
+grid on;
+set(gcf, 'Color', [0.95, 0.95, 0.95]); 
